@@ -16,7 +16,7 @@
         pkgs = nixpkgs.legacyPackages.${system};
         inherit (nixpkgs) lib;
         baseNeovim = neovim-flake.packages.${system}.nix;
-        nvimBin = pkg: "${pkg.bin}/nvim";
+        nvimBin = pkg: "${pkg}/bin/nvim";
 
         # Typescript
         tsCfg = {
@@ -27,7 +27,7 @@
           config.vim.languages.sql.enable = true;
         };
 
-        ts.neovim-ts = baseNeovim.extendConfiguration {
+        tsPkg.neovim-ts = baseNeovim.extendConfiguration {
           modules = [tsCfg];
           inherit pkgs;
         };
@@ -39,24 +39,24 @@
           config.vim.languages.go.enable = true;
         };
 
-        go.neovim-go = baseNeovim.extendConfiguration {
+        goPkg.neovim-go = baseNeovim.extendConfiguration {
           modules = [goCfg];
           inherit pkgs;
         };
       in {
         packages = rec {
-          inherit (ts) neovim-ts;
-          inherit (go) neovim-go;
+          inherit (tsPkg) neovim-ts;
+          inherit (goPkg) neovim-go;
           default = neovim-ts;
         };
         apps = rec {
           ts = {
             type = "app";
-            program = nvimBin ts.neovim-ts;
+            program = nvimBin tsPkg.neovim-ts;
           };
           go = {
             type = "app";
-            program = nvimBin go.neovim-go;
+            program = nvimBin goPkg.neovim-go;
           };
           default = ts;
         };
