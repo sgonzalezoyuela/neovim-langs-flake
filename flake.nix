@@ -16,6 +16,7 @@
         pkgs = nixpkgs.legacyPackages.${system};
         inherit (nixpkgs) lib;
         baseNeovim = neovim-flake.packages.${system}.nix;
+        nvimBin = pkg: "${pkg.bin}/nvim";
 
         # Typescript
         tsCfg = {
@@ -47,6 +48,17 @@
           inherit (ts) neovim-ts;
           inherit (go) neovim-go;
           default = neovim-ts;
+        };
+        apps = rec {
+          ts = {
+            type = "app";
+            program = nvimBin ts.neovim-ts;
+          };
+          go = {
+            type = "app";
+            program = nvimBin go.neovim-go;
+          };
+          default = ts;
         };
       }
     );
