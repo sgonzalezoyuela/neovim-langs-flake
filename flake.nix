@@ -43,6 +43,16 @@
           modules = [goCfg];
           inherit pkgs;
         };
+        # Nix (default)
+        nixCfg = {
+          #config.vim.theme.name = "dracula-nvim";
+          config.vim.languages.nix.enable = true;
+        };
+
+        nixPkg.neovim-nix = baseNeovim.extendConfiguration {
+          modules = [nixCfg];
+          inherit pkgs;
+        };
       in {
         packages = rec {
           inherit (tsPkg) neovim-ts;
@@ -58,7 +68,11 @@
             type = "app";
             program = nvimBin goPkg.neovim-go;
           };
-          default = ts;
+          nix = {
+            type = "app";
+            program = nvimBin nixPkg.neovim-nix;
+          };
+          default = nix;
         };
       }
     );
