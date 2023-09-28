@@ -14,18 +14,36 @@
     flake-utils.lib.eachDefaultSystem (
       system: let
         pkgs = nixpkgs.legacyPackages.${system};
-        inherit (nixpkgs) lib;
         baseNeovim = neovim-flake.packages.${system}.nix;
         nvimBin = pkg: "${pkg}/bin/nvim";
 
-        # Typescript
-        tsCfg = {
-          #config.vim.theme.name = "dracula-nvim";
-          config.vim.languages.nix.enable = false;
-          config.vim.languages.ts.enable = true;
-          config.vim.languages.html.enable = true;
-          config.vim.languages.sql.enable = true;
+        baseConfig = {
+          config.vim = {
+            theme.name = "dracula-nvim";
+            statusline.lualine.theme = "dracula";
+            filetree.nvimTreeLua = {
+              enable = true;
+              treeWidth = 25;
+              resizeOnFileOpen = true;
+            };
+            languages = {
+              nix.enable = true;
+              bash.enable = true;
+            };
+          };
         };
+
+        # Typescript
+        tsCfg =
+          {
+            config.vim.languages = {
+              #config.vim.theme.name = "dracula-nvim";
+              ts.enable = true;
+              html.enable = true;
+              sql.enable = true;
+            };
+          }
+          // baseConfig;
 
         tsPkg.neovim-ts = baseNeovim.extendConfiguration {
           modules = [tsCfg];
@@ -33,21 +51,25 @@
         };
 
         # Golang
-        goCfg = {
-          #config.vim.theme.name = "dracula-nvim";
-          config.vim.languages.nix.enable = false;
-          config.vim.languages.go.enable = true;
-        };
+        goCfg =
+          {
+            config.vim.languages = {
+              #config.vim.theme.name = "dracula-nvim";
+              go.enable = true;
+            };
+          }
+          // baseConfig;
 
         goPkg.neovim-go = baseNeovim.extendConfiguration {
           modules = [goCfg];
           inherit pkgs;
         };
         # Nix (default)
-        nixCfg = {
-          #config.vim.theme.name = "dracula-nvim";
-          config.vim.languages.nix.enable = true;
-        };
+        nixCfg =
+          {
+            #config.vim.theme.name = "dracula-nvim";
+          }
+          // baseConfig;
 
         nixPkg.neovim-nix = baseNeovim.extendConfiguration {
           modules = [nixCfg];
