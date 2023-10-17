@@ -40,7 +40,6 @@
               #config.vim.theme.name = "dracula-nvim";
               ts.enable = true;
               html.enable = true;
-              sql.enable = true;
             };
           }
           // baseConfig;
