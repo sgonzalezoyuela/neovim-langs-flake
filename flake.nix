@@ -1,101 +1,75 @@
 {
-  description = "Typescript/HTML neovim";
-  inputs = {
-    neovim-flake.url = "github:jordanisaacs/neovim-flake";
-    flake-utils.url = "github:numtide/flake-utils";
-  };
+  inputs.neovim-flake.url = "github:jordanisaacs/neovim-flake";
 
   outputs = {
     nixpkgs,
     neovim-flake,
-    flake-utils,
     ...
-  }:
-    flake-utils.lib.eachDefaultSystem (
-      system: let
-        pkgs = nixpkgs.legacyPackages.${system};
-        baseNeovim = neovim-flake.packages.${system}.nix;
-        nvimBin = pkg: "${pkg}/bin/nvim";
+  }: let
+    system = "x86_64-linux";
+    pkgs = nixpkgs.legacyPackages.${system};
+    inherit (nixpkgs) lib;
 
-        baseConfig = {
-          config.vim = {
-            theme.name = "dracula-nvim";
-            statusline.lualine.theme = "dracula";
-            filetree.nvimTreeLua = {
-              enable = true;
-              treeWidth = 25;
-              resizeOnFileOpen = true;
-            };
-            languages = {
-              nix.enable = true;
-              bash.enable = true;
-            };
+    # Base config for all outputs
+    configModule = {
+      config.vim = {
+        theme.name = "dracula-nvim";
+        languages = {
+          nix.enable = lib.mkForce true;
+          bash.enable = lib.mkForce true;
+          terraform.enable = lib.mkForce true;
+        };
+        filetree.nvimTreeLua = {
+          enable = true;
+          treeWidth = 25;
+          resizeOnFileOpen = true;
+        };
+      };
+    };
+
+    # Web development config
+    configWeb = {
+      config = {
+        vim = {
+          theme.name = lib.mkForce "catppuccin";
+          languages = {
+            ts.enable = lib.mkForce true;
+            html.enable = lib.mkForce true;
           };
         };
+      };
+    };
 
-        # Typescript
-        tsCfg =
-          {
-            config.vim.languages = {
-              #config.vim.theme.name = "dracula-nvim";
-              ts.enable = true;
-              html.enable = true;
-              sql.enable = true;
-            };
-          }
-          // baseConfig;
-
-        tsPkg.neovim-ts = baseNeovim.extendConfiguration {
-          modules = [tsCfg];
-          inherit pkgs;
-        };
-
-        # Golang
-        goCfg =
-          {
-            config.vim.languages = {
-              #config.vim.theme.name = "dracula-nvim";
-              go.enable = true;
-            };
-          }
-          // baseConfig;
-
-        goPkg.neovim-go = baseNeovim.extendConfiguration {
-          modules = [goCfg];
-          inherit pkgs;
-        };
-        # Nix (default)
-        nixCfg =
-          {
-            #config.vim.theme.name = "dracula-nvim";
-          }
-          // baseConfig;
-
-        nixPkg.neovim-nix = baseNeovim.extendConfiguration {
-          modules = [nixCfg];
-          inherit pkgs;
-        };
-      in {
-        packages = rec {
-          inherit (tsPkg) neovim-ts;
-          inherit (goPkg) neovim-go;
-          default = neovim-ts;
-        };
-        apps = rec {
-          ts = {
-            type = "app";
-            program = nvimBin tsPkg.neovim-ts;
+    configGo = {
+      config = {
+        vim = {
+          #theme.name = lib.mkForce "catppuccin";
+          languages = {
+            go.enable = lib.mkForce true;
           };
-          go = {
-            type = "app";
-            program = nvimBin goPkg.neovim-go;
-          };
-          nix = {
-            type = "app";
-            program = nvimBin nixPkg.neovim-nix;
-          };
-          default = nix;
         };
-      }
-    );
+      };
+    };
+
+    baseNeovim = neovim-flake.packages.${system}.nix;
+    neovimBase = baseNeovim.extendConfiguration {
+      modules = [configModule];
+      inherit pkgs;
+    };
+    neovimWeb = baseNeovim.extendConfiguration {
+      modules = [configModule configWeb];
+      inherit pkgs;
+    };
+    neovimGo = baseNeovim.extendConfiguration {
+      modules = [configModule configGo];
+      inherit pkgs;
+    };
+  in {
+    packages.${system} = {
+      default = neovimBase;
+      neovim = neovimBase;
+      neovim-web = neovimWeb;
+      neovim-go = neovimGo;
+    };
+  };
 }
