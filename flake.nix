@@ -6,6 +6,7 @@
     neovim-flake,
     ...
   }: let
+    # TODO : Support other systems!
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
     inherit (nixpkgs) lib;
