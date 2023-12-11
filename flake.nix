@@ -19,6 +19,7 @@
           nix.enable = lib.mkForce true;
           bash.enable = lib.mkForce true;
           terraform.enable = lib.mkForce true;
+          markdown.enable = lib.mkForce true;
         };
         filetree.nvimTreeLua = {
           enable = true;
@@ -36,6 +37,7 @@
           languages = {
             ts.enable = lib.mkForce true;
             html.enable = lib.mkForce true;
+            markdown.enable = lib.mkForce true;
           };
         };
       };
@@ -47,6 +49,20 @@
           #theme.name = lib.mkForce "catppuccin";
           languages = {
             go.enable = lib.mkForce true;
+            markdown.enable = lib.mkForce true;
+          };
+        };
+      };
+    };
+
+    configPy = {
+      config = {
+        vim = {
+          #theme.name = lib.mkForce "catppuccin";
+          languages = {
+            python.enable = lib.mkForce true;
+            bash.enable = lib.mkForce true;
+            markdown.enable = lib.mkForce true;
           };
         };
       };
@@ -65,12 +81,17 @@
       modules = [configModule configGo];
       inherit pkgs;
     };
+    neovimPy = baseNeovim.extendConfiguration {
+      modules = [configModule configPy];
+      inherit pkgs;
+    };
   in {
     packages.${system} = {
       default = neovimBase;
       neovim = neovimBase;
       neovim-web = neovimWeb;
       neovim-go = neovimGo;
+      neovim-py = neovimPy;
     };
   };
 }
