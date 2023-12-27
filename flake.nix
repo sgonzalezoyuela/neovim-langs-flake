@@ -55,6 +55,18 @@
       };
     };
 
+    configRs = {
+      config = {
+        vim = {
+          #theme.name = lib.mkForce "catppuccin";
+          languages = {
+            rust.enable = lib.mkForce true;
+            markdown.enable = lib.mkForce true;
+          };
+        };
+      };
+    };
+
     configPy = {
       config = {
         vim = {
@@ -81,6 +93,10 @@
       modules = [configModule configGo];
       inherit pkgs;
     };
+    neovimRs = baseNeovim.extendConfiguration {
+      modules = [configModule configRs];
+      inherit pkgs;
+    };
     neovimPy = baseNeovim.extendConfiguration {
       modules = [configModule configPy];
       inherit pkgs;
@@ -91,6 +107,7 @@
       neovim = neovimBase;
       neovim-web = neovimWeb;
       neovim-go = neovimGo;
+      neovim-rs = neovimRs;
       neovim-py = neovimPy;
     };
   };
