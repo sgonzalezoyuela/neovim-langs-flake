@@ -20,6 +20,7 @@
           bash.enable = lib.mkForce true;
           terraform.enable = lib.mkForce true;
           markdown.enable = lib.mkForce true;
+          enableDebugger = lib.mkForce true;
         };
         filetree.nvimTreeLua = {
           enable = true;
