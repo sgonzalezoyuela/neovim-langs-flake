@@ -36,6 +36,7 @@
           theme.name = lib.mkForce "catppuccin";
           languages = {
             ts.enable = lib.mkForce true;
+            java.enable = lib.mkForce true;
             html.enable = lib.mkForce true;
             markdown.enable = lib.mkForce true;
           };
